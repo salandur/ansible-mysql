@@ -1,0 +1,17 @@
+--- # salandur.php meta
+
+galaxy_info:
+  author: Jeroen Ruijgers
+  company: Salandur
+  description: Manages MySQL
+  license: MIT
+  platforms:
+  - name: CentOS
+    versions:
+    - 6.8
+  categories:
+  - server
+  - database
+  - mysql
+
+dependencies: []
