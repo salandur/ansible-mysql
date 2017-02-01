@@ -1,5 +1,7 @@
 ---
 - hosts: localhost
   remote_user: root
+  vars:
+    - mysql_root_password: test
   roles:
     - salandur.mysql
