@@ -1,33 +1,59 @@
 --- # mysql role: tasks
 
+- name: set mysql names for RedHat
+  set_fact:
+    mysql_package_name: mysql-server
+    mysql_python_package: MySQL-python
+    mysql_service_name: mysqld
+  when: ansible_os_family == 'RedHat' and ansible_distribution_version|version_compare('7', '<')
+
+- name: set mysql names for RedHat 7
+  set_fact:
+    mysql_package_name: mariadb-server
+    mysql_python_package: MySQL-python
+    mysql_service_name: mariadb
+  when: ansible_os_family == 'RedHat' and ansible_distribution_version|version_compare('7', '>=')
+
+- name: set mysql names for Debian
+  set_fact:
+    mysql_package_name: mysql-server
+    mysql_python_package: python-mysqldb
+    mysql_service_name: mysql
+  when: ansible_os_family == 'Debian'
+
 - name: install mysql server
-  package: name=mysql-server state=installed
+  package:
+    name: "{{ mysql_package_name }}"
+    state: installed
   register: mysql_install_result
 
 - name: install mysql server dependencies
-  package: name=MySQL-python state=installed
+  package:
+    name: "{{ mysql_python_package }}"
+    state: installed
 
 - name: start mysql server
-  service: name=mysqld state=started enabled=yes
+  service:
+    name: "{{ mysql_service_name }}"
+    state: started
+    enabled: yes
   when: mysql_install_result.changed
 
 - name: Set root user password
-  mysql_user: name=root
-              host="localhost"
-              password="{{ mysql_root_password }}"
-              check_implicit_admin=yes
-              login_user="root"
-              login_password=""
-              state=present
+  mysql_user:
+    name: root
+    host: "localhost"
+    password: "{{ mysql_root_password }}"
+    check_implicit_admin: yes
+    login_user: "root"
+    login_password: ""
+    state: present
   when: mysql_install_result.changed
 
 - name: delete anonymous users
-  mysql_user: name=""
-              host="{{ item }}"
-              login_user="root"
-              login_password="{{ mysql_root_password }}"
-              state=absent
-  with_items:
-    - "{{ ansible_nodename }}"
-    - localhost
+  mysql_user:
+    name: ""
+    login_user: "root"
+    login_password: "{{ mysql_root_password }}"
+    state: absent
   when: mysql_install_result.changed
