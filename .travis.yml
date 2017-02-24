@@ -13,7 +13,6 @@ env:
     init: /sbin/init
     run_opts: ''
 
-# Install ansible
 services:
   - docker
 
@@ -32,7 +31,7 @@ before_script:
 
 script:
   # Basic role syntax check
-  #- sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/salandur.mysql/tests/test.yml --syntax-check
+  - sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/salandur.mysql/tests/test.yml --syntax-check
 
   # Run the role for the first time
   - sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/salandur.mysql/tests/test.yml
@@ -44,10 +43,10 @@ script:
   #  && (echo 'Idempotence test: pass' && exit 0)
   #  || (echo 'Idempotence test: fail' && exit 1)
 
-after_script:
+#after_script:
   # Clean up
-  - sudo docker stop "$(cat ${container_id})"
-  - sudo docker rm -v $(cat ${container_id})
+  #- sudo docker stop "$(cat ${container_id})"
+  #- sudo docker rm -v $(cat ${container_id})
 
 #notifications:
 #  webhooks: https://galaxy.ansible.com/api/v1/notifications/
