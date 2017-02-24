@@ -5,14 +5,12 @@ python: "2.7"
 sudo: required
 
 env:
-  global:
-  - rolename: salandur.mysql
-  matrix:
   - distribution: centos
     version: 6.8
     init: /sbin/init
     run_opts: ''
 
+# Install ansible
 services:
   - docker
 
@@ -22,7 +20,6 @@ before_install:
   - sleep 5
   - sudo docker pull ${distribution}:${distribution}${version}
   - sudo docker build --rm=true --file=tests/Dockerfile.${distribution}-${version} --tag=${distribution}-${version}:ansible tests
-
 before_script:
   # Create container_id
   - container_id=$(mktemp)
@@ -37,16 +34,16 @@ script:
   - sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/salandur.mysql/tests/test.yml
 
   # Second run Idempotence test
-  #- >
-  #  sudo docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/salandur.mysql/tests/test.yml
-  #  | tee ansible.txt && grep -q 'changed=0.*failed=0' ansible.txt
-  #  && (echo 'Idempotence test: pass' && exit 0)
-  #  || (echo 'Idempotence test: fail' && exit 1)
+  - >
+    sudo docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/salandur.mysql/tests/test.yml
+    | grep -q 'changed=0.*failed=0'
+    && (echo 'Idempotence test: pass' && exit 0)
+    || (echo 'Idempotence test: fail' && exit 1)
 
-#after_script:
+after_script:
   # Clean up
-  #- sudo docker stop "$(cat ${container_id})"
-  #- sudo docker rm -v $(cat ${container_id})
+  - sudo docker stop "$(cat ${container_id})"
+  - sudo docker rm -v $(cat ${container_id})
 
-#notifications:
-#  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
