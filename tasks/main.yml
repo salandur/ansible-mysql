@@ -26,11 +26,13 @@
     name: "{{ mysql_package_name }}"
     state: installed
   register: mysql_install_result
+  become: yes
 
 - name: install mysql server dependencies
   package:
     name: "{{ mysql_python_package }}"
     state: installed
+  become: yes
 
 - name: start mysql server
   service:
@@ -38,6 +40,7 @@
     state: started
     enabled: yes
   when: mysql_install_result.changed
+  become: yes
 
 - name: Set root user password
   mysql_user:
@@ -49,6 +52,7 @@
     login_password: ""
     state: present
   when: mysql_install_result.changed
+  become: yes
 
 - name: delete anonymous users
   mysql_user:
@@ -57,3 +61,4 @@
     login_password: "{{ mysql_root_password }}"
     state: absent
   when: mysql_install_result.changed
+  become: yes
